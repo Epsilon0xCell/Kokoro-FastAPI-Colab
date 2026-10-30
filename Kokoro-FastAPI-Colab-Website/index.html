@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kokoro-FastAPI-Colab API Reference</title>
+<!-- pages-campaign site for Epsilon0xCell/Kokoro-FastAPI-Colab; source of truth: Kokoro-FastAPI-Colab-Website/ on the default branch -->
+<style>
+  /* I used the old two-column documentation layout for this one: a dark
+     rail on the left that lists every endpoint, detail on the right.
+     It is an API notebook, so the page should read like API docs and
+     nothing else. */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fdfdfa; color: #23272b; font-family: Helvetica, Arial, sans-serif; display: flex; min-height: 100vh; }
+  nav.rail { width: 288px; flex: 0 0 288px; background: #1f2a30; color: #cfd8dc; padding: 28px 22px 40px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  nav.rail img.logo { width: 64px; height: 64px; display: block; margin-bottom: 14px; }
+  nav.rail .name { color: #fff; font-size: 19px; font-weight: bold; line-height: 1.3; }
+  nav.rail .kind { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #8fa6ad; margin: 6px 0 22px; }
+  nav.rail h4 { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8fa6ad; margin: 22px 0 8px; }
+  nav.rail a { display: block; color: #cfd8dc; text-decoration: none; font-size: 14px; padding: 5px 0; font-family: "Courier New", monospace; }
+  nav.rail a:hover { color: #fff; }
+  nav.rail .verb { color: #7fc98f; font-weight: bold; }
+  nav.rail .verb.post { color: #e8b34b; }
+  .status-box { border: 1px solid #8fa6ad; padding: 12px 13px; margin-top: 26px; font-size: 13px; line-height: 1.55; }
+  .status-box b { color: #e8b34b; display: block; margin-bottom: 4px; letter-spacing: 1px; text-transform: uppercase; font-size: 11px; }
+  main { flex: 1; padding: 36px 52px 64px; max-width: 880px; }
+  @media (max-width: 820px) { body { flex-direction: column; } nav.rail { width: auto; flex: none; height: auto; position: static; } main { padding: 28px 22px 50px; } }
+  h1 { font-size: 31px; margin: 0 0 8px; color: #14232a; }
+  .tagline { font-size: 16.5px; line-height: 1.6; margin: 0 0 16px; max-width: 64ch; }
+  .banner { width: 100%; height: auto; display: block; border: 1px solid #d7dcdd; margin: 10px 0 14px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .badges img { height: 20px; }
+  h2 { font-size: 20px; color: #14232a; border-bottom: 2px solid #1f2a30; padding-bottom: 6px; margin: 38px 0 14px; }
+  h3.ep { font-family: "Courier New", monospace; font-size: 17px; background: #eef3f1; border-left: 5px solid #2e7d46; padding: 10px 13px; margin: 26px 0 10px; }
+  h3.ep.post { border-left-color: #b57f14; }
+  p { line-height: 1.65; font-size: 15.5px; max-width: 68ch; }
+  code { font-family: "Courier New", monospace; background: #eef3f1; padding: 0 4px; font-size: 0.94em; }
+  pre { background: #14232a; color: #e6f0e9; padding: 15px 17px; overflow-x: auto; font-size: 13.5px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: inherit; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; margin: 10px 0 4px; }
+  th, td { border: 1px solid #c9d1d3; padding: 8px 11px; text-align: left; vertical-align: top; }
+  th { background: #eef3f1; width: 24%; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1.5px solid #1f2a30; padding: 4px 10px; font-size: 13px; font-family: "Courier New", monospace; }
+  ol.steps li { line-height: 1.65; font-size: 15.5px; margin-bottom: 7px; max-width: 66ch; }
+  a { color: #1d5c38; }
+  footer { border-top: 1px solid #c9d1d3; margin-top: 46px; padding-top: 14px; font-size: 13px; color: #5c666b; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+</style>
+</head>
+<body>
+
+<nav class="rail">
+  <!-- I keep the rail short on purpose: these are all the routes the
+       notebook actually prints when the tunnel opens. If a route is not
+       in the notebook output, it does not get a rail entry. -->
+  <img class="logo" src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/logo.png" alt="Kokoro-FastAPI-Colab logo">
+  <div class="name">Kokoro-FastAPI-Colab</div>
+  <div class="kind">API reference / Colab notebook</div>
+  <h4>Endpoints</h4>
+  <a href="#voices"><span class="verb">GET</span> /v1/audio/voices</a>
+  <a href="#speech"><span class="verb post">POST</span> /v1/audio/speech</a>
+  <a href="#web"><span class="verb">GET</span> /web</a>
+  <a href="#docs"><span class="verb">GET</span> /docs</a>
+  <h4>Notebook</h4>
+  <a href="#about">What this is</a>
+  <a href="#start">Start it</a>
+  <a href="#readiness">How readiness works</a>
+  <a href="#limits">Limits</a>
+  <div class="status-box">
+    <b>Status: session-bound</b>
+    This API exists only while a Colab runtime is running the notebook. There is no hosted copy of mine sitting on a server somewhere. When the session ends, the tunnel and the public URL end with it.
+  </div>
+</nav>
+
+<main>
+  <h1>Kokoro text-to-speech, served from a Colab notebook</h1>
+  <p class="tagline">A ready-to-run Google Colab notebook for deploying the Kokoro text-to-speech API with GPU acceleration and public access via an ngrok tunnel.</p>
+  <img class="banner" src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/banner.png" alt="Kokoro-FastAPI-Colab banner">
+  <div class="badges">
+    <img src="https://img.shields.io/github/stars/Epsilon0xCell/Kokoro-FastAPI-Colab" alt="Stars">
+    <img src="https://img.shields.io/github/forks/Epsilon0xCell/Kokoro-FastAPI-Colab" alt="Forks">
+    <img src="https://img.shields.io/github/last-commit/Epsilon0xCell/Kokoro-FastAPI-Colab" alt="Last commit">
+    <img src="https://img.shields.io/github/languages/top/Epsilon0xCell/Kokoro-FastAPI-Colab" alt="Top language">
+    <img src="https://img.shields.io/github/repo-size/Epsilon0xCell/Kokoro-FastAPI-Colab" alt="Repo size">
+    <img src="https://img.shields.io/github/license/Epsilon0xCell/Kokoro-FastAPI-Colab" alt="License">
+  </div>
+
+  <h2 id="about">What this is</h2>
+  <p>I wanted a Kokoro text-to-speech endpoint I could point SillyTavern at without renting a GPU box. This repo is my answer: one notebook, <code>launch_kokoro.ipynb</code>, four cells. The single code cell installs the client pieces (<code>requests</code>, <code>loguru</code>, <code>pyngrok</code>), installs <code>espeak-ng</code> from apt, clones the upstream server, downloads the model into the folder its start script expects, starts the GPU server on port 8880, waits for it, tests it with a real speech request, and then opens the tunnel.</p>
+  <p>Credit where it belongs: the speech server itself is not my code. The notebook clones <code>remsky/Kokoro-FastAPI</code> at run time and starts its <code>start-gpu.sh</code>. What is mine is the launcher around it: the config block at the top, the readiness checks, the test call that saves <code>test_output.mp3</code> as proof, the tunnel setup with its fallback, and the loop that keeps the session alive. An earlier version of the README claimed Cloudflare tunnels. The notebook contains no Cloudflare code at all (the campaign counted 42 ngrok mentions and zero Cloudflare), and that claim is corrected in the README and stays corrected here.</p>
+  <p>The whole launcher stays in one cell on purpose. Colab runs a notebook top to bottom in one shared namespace, so the config, the server thread, and the tunnel live together. Splitting the cell would let the tunnel half run before the server half.</p>
+
+  <h2>Base addresses</h2>
+  <table>
+    <tr><th>Local</th><td><code>http://localhost:8880</code> inside the Colab runtime, where the notebook tests the API before any tunnel exists.</td></tr>
+    <tr><th>Public</th><td>The ngrok URL the notebook prints at the end of setup. Set <code>NGROK_CUSTOM_DOMAIN</code> to a reserved ngrok domain and that address is used; if the custom domain fails, the notebook falls back to a standard ngrok URL in the same attempt instead of failing the setup.</td></tr>
+    <tr><th>Use in an app</th><td>Put the public URL into SillyTavern or another application as an OpenAI-compatible TTS endpoint, as the notebook's final output instructs.</td></tr>
+  </table>
+
+  <h2>Endpoints</h2>
+
+  <h3 class="ep" id="voices">GET /v1/audio/voices</h3>
+  <p>Lists the voices the loaded model offers. This is also the readiness probe: <code>wait_for_api</code> polls this endpoint once a second for up to 180 attempts, and the test function reads its answer carefully instead of trusting one shape, printing the first five voice ids and a count of the rest, or saying plainly when the answer came back in a different format than expected.</p>
+  <pre><code>GET {public_url}/v1/audio/voices</code></pre>
+
+  <h3 class="ep post" id="speech">POST /v1/audio/speech</h3>
+  <p>Turns text into audio. The notebook's own test call, copied from <code>test_api</code> in the code cell, is the honest example of this endpoint, including the voice it uses:</p>
+  <!-- This JSON body is the test call from the notebook, character for
+       character in the fields. I did not tidy it into a prettier example
+       because a made-up example would describe an API I never tested. -->
+  <pre><code>POST {api_url}/v1/audio/speech
+Content-Type: application/json
+
+{
+  "model": "kokoro",
+  "input": "Hello, this is a test of the Kokoro text-to-speech API!",
+  "voice": "af_bella",
+  "response_format": "mp3"
+}</code></pre>
+  <p>On a 200 answer the notebook saves the returned audio to <code>test_output.mp3</code>. I test with a real speech request, not only the voices list, because an endpoint can list voices while synthesis itself is still broken.</p>
+
+  <h3 class="ep" id="web">GET /web</h3>
+  <p>The server's web interface, at <code>{public_url}/web</code> as printed by the notebook when the tunnel opens. It belongs to the upstream server the notebook clones; I list it because the notebook prints it as part of the finished setup.</p>
+
+  <h3 class="ep" id="docs">GET /docs</h3>
+  <p>The FastAPI docs page for the cloned server, at <code>{public_url}/docs</code>, also printed by the notebook at setup. If you want the upstream server's own full reference, that page is it, served by the running instance itself.</p>
+
+  <h2 id="start">Start it</h2>
+  <ol class="steps">
+    <li>Open the notebook in Google Colab: <a href="https://colab.research.google.com/github/Epsilon0xCell/Kokoro-FastAPI-Colab/blob/main/launch_kokoro.ipynb">the Colab link for launch_kokoro.ipynb</a>, or use the Open in Colab badge in the repo README.</li>
+    <li>In Colab, go to Runtime, then Change runtime type, and select T4 GPU.</li>
+    <li>Set <code>NGROK_AUTH_TOKEN</code> in the configuration block at the top of the code cell to your own ngrok auth token. The placeholder value is rejected by the notebook itself with a clear error. Set <code>NGROK_CUSTOM_DOMAIN</code> too if you reserved a domain (in the ngrok dashboard: Reserved, then Reserve a Domain).</li>
+    <li>Run the notebook. It sets up the server, waits up to 180 seconds for the API, tests it, and creates the public URL.</li>
+    <li>Keep the notebook running. The final loop sleeps and prints a status line each minute; that loop is the point, not a hang, because a finished cell lets Colab reclaim the runtime and the tunnel dies with it.</li>
+  </ol>
+
+  <h2 id="readiness">How readiness works</h2>
+  <p>Readiness is judged by two signals, and the notebook trusts neither alone. A reader thread scrapes the server's own log lines for its stage markers (loading the model, creating the pipeline, warmup, startup complete), while <code>wait_for_api</code> polls the voices endpoint. The endpoint can answer before the model finishes loading, and log lines can lag when output is buffered. If the 180 seconds run out but the server process is still alive, the notebook takes one longer look and then asks the person watching whether to continue, because a slow load is not the same thing as a dead one.</p>
+
+  <h2 id="limits">Limits, stated plain</h2>
+  <p>Hosted on Colab means session-bound. The notebook's second cell is a browser-console snippet that clicks Colab's connect button every 60 seconds to hold the session; it only helps while that tab stays open, and it is unverified against the current Colab interface. The tunnel function returns None on failure instead of raising, on purpose: by the time it runs, a loaded model on a GPU is already up locally, and a tunnel problem should not throw that away. And the campaign limit, which I keep on this page: no live Colab run was attempted in the improvement passes, because a live run needs a T4 GPU session and a real ngrok token. GPU start-up, model download, and tunnel creation are as coded in the notebook, not as observed.</p>
+
+  <div class="chips">
+    <span class="chip">Jupyter notebook</span>
+    <span class="chip">Python</span>
+    <span class="chip">FastAPI (upstream server)</span>
+    <span class="chip">pyngrok / ngrok</span>
+    <span class="chip">Google Colab, T4 GPU</span>
+    <span class="chip">espeak-ng</span>
+    <span class="chip">Port 8880</span>
+  </div>
+  <p>Source: <a href="https://github.com/Epsilon0xCell/Kokoro-FastAPI-Colab">github.com/Epsilon0xCell/Kokoro-FastAPI-Colab</a> / Profile: <a href="https://github.com/Epsilon0xCell">github.com/Epsilon0xCell</a></p>
+
+  <footer>
+    <span>Built by Epsilon0xCell</span>
+    <span>Reference set from the notebook itself. Runs only while a Colab session runs it.</span>
+  </footer>
+</main>
+</body>
+</html>
