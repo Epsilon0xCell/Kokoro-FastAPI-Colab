@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kokoro-FastAPI-Colab: The Launch Console</title>
+<!-- pages-campaign site for Epsilon0xCell/Kokoro-FastAPI-Colab; source of truth: Kokoro-FastAPI-Colab-Website/ on the default branch -->
+<style>
+  /* I laid this page out like the console the notebook itself prints
+     to: one dark column, a status strip up top, and the run going
+     down the page in the order the cell runs it. The notebook is a
+     single cell that behaves like a small control program, so the
+     page reads like its panel, not like a brochure. */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #101410; color: #d8dcd2; font-family: "Segoe UI", Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 22px 70px; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  header.top { padding: 40px 0 8px; }
+  img.banner { width: 100%; height: auto; display: block; border: 1px solid #2c362c; }
+  .titlebar { display: flex; gap: 18px; align-items: flex-start; margin-top: 26px; }
+  img.logo { width: 76px; height: 76px; flex: 0 0 76px; border: 1px solid #2c362c; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 2px 0 6px; color: #f0f3ea; font-weight: 700; }
+  .sub { color: #9aa78f; font-size: 15px; margin: 0; max-width: 56ch; }
+  /* The status strip quotes the three log lines my reader thread
+     actually watches for. They are the real readiness signals from
+     the code, not decoration I invented for the header. */
+  .status { display: flex; flex-wrap: wrap; gap: 8px 22px; border-top: 1px solid #2c362c; border-bottom: 1px solid #2c362c; padding: 12px 2px; margin: 26px 0 8px; font-size: 13px; }
+  .status .sig { color: #c9d4bd; }
+  .status .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7fb069; margin-right: 8px; animation: pulse 2.6s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .badges { margin: 14px 0 0; }
+  .badges img { height: 20px; margin: 0 6px 6px 0; vertical-align: middle; }
+  section { margin-top: 44px; }
+  h2 { font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #7fb069; margin: 0 0 16px; font-weight: 700; }
+  p { line-height: 1.65; font-size: 16px; margin: 0 0 14px; max-width: 68ch; }
+  a { color: #a8c686; }
+  a:hover { color: #d3e4bc; }
+  .stats { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2c362c; margin-top: 6px; }
+  .stat { flex: 1 1 160px; padding: 16px 18px; border-right: 1px solid #2c362c; }
+  .stat:last-child { border-right: none; }
+  .stat .n { font-size: 30px; color: #f0f3ea; font-weight: 700; }
+  .stat .l { font-size: 12.5px; color: #9aa78f; margin-top: 4px; line-height: 1.45; }
+  /* The run goes down a rail. The fill line is drawn by the script at
+     the bottom as you scroll, scaleY only, so it costs nothing on a
+     phone. With no script the rail is just a border and every stage
+     still reads in order. */
+  .run { position: relative; margin-top: 8px; padding-left: 34px; }
+  .run::before { content: ""; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: #2c362c; }
+  .run .fill { position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: #7fb069; transform-origin: top; transform: scaleY(0); }
+  .stage { position: relative; padding: 18px 0 8px; }
+  .stage::before { content: ""; position: absolute; left: -31px; top: 26px; width: 12px; height: 12px; border-radius: 50%; background: #101410; border: 2px solid #7fb069; }
+  .stage h3 { margin: 0 0 8px; font-size: 18px; color: #f0f3ea; }
+  .stage h3 .no { color: #7fb069; margin-right: 10px; }
+  figure.cap { margin: 14px 0 20px; border: 1px solid #2c362c; background: #0a0d0a; }
+  figure.cap figcaption { font-size: 12.5px; color: #9aa78f; padding: 9px 14px; border-bottom: 1px solid #2c362c; line-height: 1.5; }
+  figure.cap pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; color: #d8dcd2; }
+  .note { border-left: 3px solid #c9a227; padding: 4px 0 4px 16px; margin: 0 0 16px; }
+  .note p { margin: 0 0 8px; }
+  ol.guide { line-height: 1.65; font-size: 16px; padding-left: 22px; max-width: 68ch; }
+  ol.guide li { margin-bottom: 10px; }
+  .plates { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 640px) { .plates { grid-template-columns: 1fr; } }
+  .plates figure { margin: 0; border: 1px solid #2c362c; background: #0a0d0a; }
+  .plates img { width: 100%; height: auto; display: block; }
+  .plates figcaption { font-size: 13px; color: #9aa78f; padding: 9px 12px; line-height: 1.5; }
+  footer { margin-top: 56px; border-top: 1px solid #2c362c; padding-top: 18px; font-size: 13.5px; color: #9aa78f; line-height: 1.7; }
+  /* Reveals are one-shot and only when the script adds the js class.
+     No script, no hidden content: everything below starts visible
+     and the script is what hides it, briefly, before showing it. */
+  .js .reveal { opacity: 0; transform: translateY(10px); transition: opacity 0.55s ease, transform 0.55s ease; }
+  .js .reveal.on { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .status .dot { animation: none; }
+    .js .reveal { opacity: 1; transform: none; transition: none; }
+    .run .fill { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <img class="banner" src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/banner.png" alt="Kokoro-FastAPI-Colab banner">
+  <div class="titlebar">
+    <img class="logo" src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/logo.png" alt="Kokoro-FastAPI-Colab logo">
+    <div>
+      <h1>Kokoro-FastAPI-Colab: The Launch Console</h1>
+      <p class="sub">One Colab notebook, four cells, that stands up a Kokoro text-to-speech API on a T4 GPU and gives it a public address.</p>
+    </div>
+  </div>
+  <div class="status mono" aria-label="Readiness signals the launcher watches for">
+    <span class="sig"><span class="dot"></span>Warmup completed</span>
+    <span class="sig"><span class="dot"></span>Uvicorn running on 0.0.0.0:8880</span>
+    <span class="sig"><span class="dot"></span>Application startup complete</span>
+  </div>
+  <p class="badges">
+    <img src="https://img.shields.io/github/stars/Epsilon0xCell/Kokoro-FastAPI-Colab?style=flat-square&labelColor=1c241c&color=7fb069" alt="GitHub stars">
+    <img src="https://img.shields.io/github/forks/Epsilon0xCell/Kokoro-FastAPI-Colab?style=flat-square&labelColor=1c241c&color=7fb069" alt="GitHub forks">
+    <img src="https://img.shields.io/github/last-commit/Epsilon0xCell/Kokoro-FastAPI-Colab?style=flat-square&labelColor=1c241c&color=7fb069" alt="Last commit">
+    <img src="https://img.shields.io/github/languages/top/Epsilon0xCell/Kokoro-FastAPI-Colab?style=flat-square&labelColor=1c241c&color=7fb069" alt="Top language">
+    <img src="https://img.shields.io/github/repo-size/Epsilon0xCell/Kokoro-FastAPI-Colab?style=flat-square&labelColor=1c241c&color=7fb069" alt="Repository size">
+    <img src="https://img.shields.io/github/license/Epsilon0xCell/Kokoro-FastAPI-Colab?style=flat-square&labelColor=1c241c&color=7fb069" alt="License, MIT">
+  </p>
+</header>
+
+<section class="reveal">
+  <h2>What this is</h2>
+  <p>I keep a text-to-speech voice on call for the chat clients I use, and renting a GPU by the month for it makes no sense. This notebook is my answer: open it in Google Colab, pick the T4 GPU runtime, put in an ngrok token, run one cell, and a Kokoro TTS server is up with a public URL I can paste into SillyTavern or anything else that speaks the OpenAI audio endpoints.</p>
+  <p>The server itself is not mine. The launcher clones <a href="https://github.com/remsky/Kokoro-FastAPI">remsky's Kokoro-FastAPI</a> and starts its GPU script. What I wrote is everything around that: the install steps, the model download into the folder the start script expects, the background server thread, the two ways the launcher decides the API is ready, the speech test that saves a real audio file, and the ngrok tunnel with its fallback. An earlier version of the README said the tunnel was Cloudflare. It is ngrok, it always was in the code, and the README has been corrected to say so.</p>
+  <div class="stats mono">
+    <div class="stat"><div class="n" data-count="4">4</div><div class="l">cells in the notebook: intro, launcher, keep-alive note, ngrok guide</div></div>
+    <div class="stat"><div class="n" data-count="342">342</div><div class="l">lines in the one launcher cell, config to keep-alive loop</div></div>
+    <div class="stat"><div class="n" data-count="8880">8880</div><div class="l">the port the server listens on inside the Colab runtime</div></div>
+    <div class="stat"><div class="n" data-count="180">180</div><div class="l">seconds of polling budget before the wait calls it a timeout</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>The run, in the order the cell runs it</h2>
+  <div class="run" id="run">
+    <div class="fill" id="runfill"></div>
+
+    <div class="stage reveal">
+      <h3><span class="no">1</span>Config first, in the cell itself</h3>
+      <p>Two values sit at the top of the launcher cell: the ngrok auth token, which is required, and a custom domain, which is optional. There is no settings file and no widget. You edit the cell, which is the honest interface for a notebook people copy and rerun.</p>
+    </div>
+
+    <div class="stage reveal">
+      <h3><span class="no">2</span>Clients installed, then the system pieces</h3>
+      <p>The cell installs requests, loguru, and pyngrok with pip, then espeak-ng from apt, because that one is a system binary the server needs on the machine, and uv because the setup steps that follow call it.</p>
+    </div>
+
+    <div class="stage reveal">
+      <h3><span class="no">3</span>A fresh clone and the model</h3>
+      <p>Any old clone is deleted first, because Colab cells get rerun in the same working directory and cloning into a leftover folder either fails or mixes two checkouts. Then the launcher clones Kokoro-FastAPI and downloads the model into the v1_0 folder inside it, which is the layout the start script looks for.</p>
+    </div>
+
+    <div class="stage reveal">
+      <h3><span class="no">4</span>The server starts in a thread, and a reader watches its log</h3>
+      <p>The server runs through Popen so the launcher keeps a process handle; a dead server and a slow one look different that way. A daemon reader thread prints the server log and watches for the exact lines that mark each stage of the load. These are the lines it matches, from the launcher cell:</p>
+      <figure class="cap">
+        <figcaption class="mono">launch_kokoro.ipynb, launcher cell, lines 95 to 108: the readiness signals</figcaption>
+        <pre class="mono">            elif 'Creating new pipeline' in line_str:
+                server_status = "Creating pipeline"
+            elif 'Generating audio for text' in line_str:
+                server_status = "Generating warmup audio"
+            elif 'Got audio chunk with shape' in line_str:
+                server_status = "Finishing warmup"
+            elif 'Warmup completed' in line_str:
+                server_status = "Warmup completed"
+            elif '0.0.0.0:8880' in line_str and 'Uvicorn running' in line_str:
+                server_status = "Server running"
+                print("✓ Server started successfully and is listening on port 8880")
+            elif 'Application startup complete' in line_str:
+                server_status = "Ready"
+                server_ready = True</pre>
+      </figure>
+    </div>
+
+    <div class="stage reveal">
+      <h3><span class="no">5</span>The wait: two signals, neither trusted alone</h3>
+      <p>I judge readiness two ways. The log reader can say ready, and the wait also polls the voices endpoint once a second for up to 180 attempts. The endpoint can answer before the model has finished loading, and log lines can lag when output is buffered, so one signal by itself would lie to me in both directions.</p>
+      <figure class="cap">
+        <figcaption class="mono">launch_kokoro.ipynb, launcher cell, lines 125 to 144: wait_for_api, the polling core</figcaption>
+        <pre class="mono">def wait_for_api(max_attempts=180):  # Increased timeout to 3 minutes
+    global server_ready, server_status
+    print("Waiting for Kokoro API to initialize...")
+    for attempt in range(1, max_attempts + 1):
+        if server_ready:
+            print(f"✓ Kokoro API is ready (detected from logs)!")
+            return True
+            
+        try:
+            response = requests.get("http://localhost:8880/v1/audio/voices", timeout=2)
+            if response.status_code == 200:
+                print(f"✓ Kokoro API is ready after {attempt} seconds!")
+                server_ready = True
+                return True
+            else:
+                print(f"API returned status code {response.status_code}, retrying...")
+        except requests.exceptions.RequestException as e:
+            if attempt % 10 == 0:  # I print only every 10 attempts so a long wait does not flood the cell output.
+                print(f"Still waiting for API ({attempt}/{max_attempts}s): Current status: {server_status}")
+        time.sleep(1)</pre>
+      </figure>
+      <p>If the budget runs out but the process is still alive, the wait tries once more with a longer timeout and then asks the person watching whether to continue. A slow load on a T4 is normal, and my timer is a deadline I picked, not proof that anything died.</p>
+    </div>
+
+    <div class="stage reveal">
+      <h3><span class="no">6</span>A real speech test before any tunnel</h3>
+      <p>The local address is tested before the tunnel opens, so a failure tells me which half broke. The test is a real speech request, not only the voices list, because an endpoint can list voices while synthesis itself is still broken. The returned audio is saved to test_output.mp3 as proof I can play.</p>
+      <figure class="cap">
+        <figcaption class="mono">launch_kokoro.ipynb, launcher cell, lines 201 to 215: the speech request inside test_api</figcaption>
+        <pre class="mono">        print("\nGenerating test audio... (this tests the API is working)")
+        response = requests.post(
+            f"{api_url}/v1/audio/speech",
+            json={
+                "model": "kokoro",
+                "input": "Hello, this is a test of the Kokoro text-to-speech API!",
+                "voice": "af_bella",
+                "response_format": "mp3"
+            }
+        )
+        if response.status_code == 200:
+            print("✓ API test successful! Audio generated correctly.")
+            with open("test_output.mp3", "wb") as f:
+                f.write(response.content)
+            print("✓ Test audio saved to test_output.mp3")</pre>
+      </figure>
+    </div>
+
+    <div class="stage reveal">
+      <h3><span class="no">7</span>The tunnel, with a fallback and a guard</h3>
+      <p>Before ngrok is touched, the launcher checks the token against the placeholder text an unedited copy of the notebook still holds, and stops with a plain message if it matches. A missing token should fail there, in my words, not deeper down as a pyngrok traceback. Then it tries the reserved domain first and falls back to a standard ngrok URL in the same attempt, because a reserved domain can be taken or not active yet, and a working plain URL beats a failed setup.</p>
+      <figure class="cap">
+        <figcaption class="mono">launch_kokoro.ipynb, launcher cell, lines 254 to 267: custom domain first, standard URL as fallback</figcaption>
+        <pre class="mono">        # I try my reserved domain first and fall back to a random
+        # URL inside the same attempt. A reserved domain can be
+        # taken or not active yet, and I would rather hand back a
+        # working random URL than fail the whole setup over the
+        # nicer address.
+        if NGROK_CUSTOM_DOMAIN:
+            try:
+                print(f"Attempting to use custom domain: {NGROK_CUSTOM_DOMAIN}")
+                tunnel = ngrok.connect(addr=8880, domain=NGROK_CUSTOM_DOMAIN)
+                print(f"✓ Ngrok tunnel established with custom domain: {NGROK_CUSTOM_DOMAIN}")
+            except Exception as e:
+                print(f"Failed to use custom domain: {str(e)}")
+                print("Falling back to regular ngrok tunnel...")
+                tunnel = ngrok.connect(8880)</pre>
+      </figure>
+    </div>
+
+    <div class="stage reveal">
+      <h3><span class="no">8</span>The loop at the end is the point</h3>
+      <p>When the tunnel is up, the cell sleeps and prints a status line every minute, on purpose. A finished Colab cell lets the runtime be reclaimed, and a reclaimed runtime takes the server, the tunnel, and the public URL down with it. The notebook stays alive until I interrupt the cell myself.</p>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <h2>Keeping the session alive</h2>
+  <p>The third cell is a note, not code that runs in the notebook: a JavaScript snippet for the browser console that clicks Colab's connect button every sixty seconds. I rely on it because Colab reclaims idle runtimes. It only helps while the tab stays open. The snippet, exactly as the notebook gives it:</p>
+  <figure class="cap">
+    <figcaption class="mono">launch_kokoro.ipynb, third cell: the keep-alive snippet, verbatim</figcaption>
+    <pre class="mono">function ClickConnect() { console.log("Clicked on connect button"); document.querySelector("colab-toolbar-button#connect").click() } setInterval(ClickConnect, 60000)</pre>
+  </figure>
+</section>
+
+<section class="reveal">
+  <h2>What I am not claiming</h2>
+  <div class="note">
+    <p><strong>Not run live by me in the last check.</strong> The notebook file was opened and read cell by cell, and it parses as valid JSON. A live run needs a Google Colab session with a T4 GPU and a real ngrok token, and neither was used for the check, so GPU start-up, the model download, and tunnel creation are true as coded, not as observed.</p>
+  </div>
+  <div class="note">
+    <p><strong>The keep-alive snippet is unverified</strong> against the current Colab interface. It is printed above exactly as the notebook carries it.</p>
+  </div>
+  <div class="note">
+    <p><strong>The token stays yours.</strong> Nothing on this page shows a token value, and the notebook ships with placeholder text in that spot on purpose, with the guard described at stage 7 rejecting it.</p>
+  </div>
+</section>
+
+<section class="reveal">
+  <h2>Getting your own ngrok pieces</h2>
+  <p>The notebook's last cell is the full guide. Short version:</p>
+  <ol class="guide">
+    <li>Create a free ngrok account and verify the email if it asks.</li>
+    <li>In the ngrok dashboard, open the Auth section and copy your auth token.</li>
+    <li>Optionally reserve a domain in the dashboard's Domains section, so the tunnel gets the same address every run.</li>
+    <li>Set NGROK_AUTH_TOKEN in the launcher cell, set NGROK_CUSTOM_DOMAIN if you reserved one, pick the T4 GPU runtime, and run the cell.</li>
+  </ol>
+  <p><a href="https://colab.research.google.com/github/Epsilon0xCell/Kokoro-FastAPI-Colab/blob/main/launch_kokoro.ipynb">Open the notebook in Google Colab</a> &middot; <a href="https://github.com/Epsilon0xCell/Kokoro-FastAPI-Colab">The repository</a> &middot; <a href="https://github.com/Epsilon0xCell">My profile</a></p>
+</section>
+
+<section class="reveal">
+  <h2>The drawings</h2>
+  <p>Six hand-drawn sheets live in the repo's Visuals folder, counted and drawn from the files themselves. The folder's VISUAL.md describes five of them; the schematic is the sixth, drawn later, and it is shown here with the rest rather than left out to match the older text.</p>
+  <div class="plates">
+    <figure><img src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/Kokoro-FastAPI-Colab-Visuals/architecture.png" alt="Architecture sheet for Kokoro-FastAPI-Colab"><figcaption>The put-together: the biggest file at the top, the real function names read out of the source.</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/Kokoro-FastAPI-Colab-Visuals/flowchart.png" alt="Flowchart sheet for Kokoro-FastAPI-Colab"><figcaption>The run, start at the entry file and end where the code ends.</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/Kokoro-FastAPI-Colab-Visuals/product-map.png" alt="Product map sheet for Kokoro-FastAPI-Colab"><figcaption>What it is for, what goes in, what comes out, and where it stops.</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/Kokoro-FastAPI-Colab-Visuals/data-flow.png" alt="Data flow sheet for Kokoro-FastAPI-Colab"><figcaption>The data path in one direction, file to result.</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/Kokoro-FastAPI-Colab-Visuals/statistics.png" alt="Statistics sheet for Kokoro-FastAPI-Colab"><figcaption>The counts, drawn as bars you can check against the repo.</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/Epsilon0xCell/Kokoro-FastAPI-Colab/main/Kokoro-FastAPI-Colab-Visuals/schematic.png" alt="Schematic sheet for Kokoro-FastAPI-Colab"><figcaption>The schematic, the sheet VISUAL.md does not list. The drawings keep clear of the binder holes on every sheet, by rule and by machine check.</figcaption></figure>
+  </div>
+</section>
+
+<footer>
+  <p>Built by Epsilon0xCell. The notebook is MIT licensed; the Kokoro-FastAPI server it launches is remsky's, under its own license.</p>
+  <p>Last updated 2026-10-31. Every code panel on this page was checked line by line against launch_kokoro.ipynb as it stands now.</p>
+</footer>
+
+</div>
+<script>
+  // I keep the motion small and honest: the rail fills as you read
+  // the run in order, sections surface once, and the four numbers
+  // count up once when they arrive. If you asked your system for
+  // reduced motion, this script does nothing at all and the CSS
+  // leaves everything still and visible.
+  (function () {
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { return; }
+    document.documentElement.classList.add("js");
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+    var fill = document.getElementById("runfill");
+    var run = document.getElementById("run");
+    function draw() {
+      var r = run.getBoundingClientRect();
+      var total = r.height - window.innerHeight * 0.5;
+      var done = Math.min(Math.max(-r.top + window.innerHeight * 0.5, 0), Math.max(total, 1));
+      fill.style.transform = "scaleY(" + (total > 0 ? done / total : 0) + ")";
+    }
+    var ticking = false;
+    window.addEventListener("scroll", function () {
+      if (!ticking) { window.requestAnimationFrame(function () { draw(); ticking = false; }); ticking = true; }
+    }, { passive: true });
+    draw();
+    var cio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) { return; }
+        var el = e.target, target = parseInt(el.getAttribute("data-count"), 10), t0 = null;
+        cio.unobserve(el);
+        function step(t) {
+          if (!t0) { t0 = t; }
+          var p = Math.min((t - t0) / 900, 1);
+          el.textContent = Math.round(target * p).toLocaleString("en-US");
+          if (p < 1) { window.requestAnimationFrame(step); }
+        }
+        window.requestAnimationFrame(step);
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll("[data-count]").forEach(function (el) { cio.observe(el); });
+  })();
+</script>
+</body>
+</html>
