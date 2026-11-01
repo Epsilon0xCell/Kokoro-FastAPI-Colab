@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" role="img" aria-label="Mask workshop wall, animated">
+<rect width="1200" height="340" fill="#101210"/>
+<rect x="40" y="26" width="170" height="180" fill="#5f7f6e"/>
+<g stroke="#8fd0b2" stroke-width="7" fill="none" opacity="0.6">
+<path d="M230,44 q120,-14 240,0 t240,0"><animate attributeName="opacity" values="0.25;0.7;0.25" dur="9s" repeatCount="indefinite"/></path>
+<path d="M230,76 q120,-14 240,0 t240,0"><animate attributeName="opacity" values="0.7;0.25;0.7" dur="9s" repeatCount="indefinite"/></path>
+</g>
+<g fill="#eee9dc">
+<g><ellipse cx="330" cy="130" rx="42" ry="52"/><ellipse cx="314" cy="122" rx="10" ry="6" fill="#0a0a0a"/><ellipse cx="348" cy="122" rx="10" ry="6" fill="#0a0a0a"/><path d="M330,182 l-6,20 M330,182 l7,19" stroke="#b02028" stroke-width="5"><animateTransform attributeName="transform" type="rotate" values="-4 330 182;4 330 182;-4 330 182" dur="7s" repeatCount="indefinite"/></path><animateTransform attributeName="transform" type="rotate" values="-2 330 78;2 330 78;-2 330 78" dur="8s" repeatCount="indefinite"/></g>
+<g><ellipse cx="520" cy="130" rx="42" ry="52"/><ellipse cx="504" cy="122" rx="10" ry="6" fill="#0a0a0a"/><ellipse cx="538" cy="122" rx="10" ry="6" fill="#0a0a0a"/><path d="M520,182 l-6,20 M520,182 l7,19" stroke="#b02028" stroke-width="5"><animateTransform attributeName="transform" type="rotate" values="4 520 182;-4 520 182;4 520 182" dur="8s" repeatCount="indefinite"/></path><animateTransform attributeName="transform" type="rotate" values="2 520 78;-2 520 78;2 520 78" dur="9s" begin="1s" repeatCount="indefinite"/></g>
+<g><ellipse cx="710" cy="130" rx="42" ry="52"/><ellipse cx="694" cy="122" rx="10" ry="6" fill="#0a0a0a"/><ellipse cx="728" cy="122" rx="10" ry="6" fill="#0a0a0a"/><ellipse cx="694" cy="122" rx="12" ry="8" fill="none" stroke="#d4a83c" stroke-width="3"/></g>
+<g><ellipse cx="900" cy="130" rx="42" ry="52"/><ellipse cx="884" cy="122" rx="10" ry="6" fill="#0a0a0a"/><ellipse cx="918" cy="122" rx="10" ry="6" fill="#0a0a0a"/><path d="M900,182 l-6,20 M900,182 l7,19" stroke="#b02028" stroke-width="5"><animateTransform attributeName="transform" type="rotate" values="-3 900 182;3 900 182;-3 900 182" dur="7.5s" repeatCount="indefinite"/></path><animateTransform attributeName="transform" type="rotate" values="-2 900 78;2 900 78;-2 900 78" dur="8.5s" begin="2s" repeatCount="indefinite"/></g>
+</g>
+<rect y="286" width="1200" height="54" fill="#4a3826"/>
+<ellipse cx="300" cy="300" rx="52" ry="14" fill="#e3ded2"/>
+<rect x="470" y="292" width="90" height="22" fill="#2e2a24"/>
+<g fill="#e8c86a">
+<circle cx="120" cy="60" r="2.4"><animateTransform attributeName="transform" type="translate" values="0,0;6,210" dur="12s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur="12s" repeatCount="indefinite"/></circle>
+<circle cx="190" cy="40" r="2"><animateTransform attributeName="transform" type="translate" values="0,0;-4,230" dur="15s" begin="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur="15s" begin="3s" repeatCount="indefinite"/></circle>
+<circle cx="90" cy="90" r="1.8"><animateTransform attributeName="transform" type="translate" values="0,0;8,180" dur="11s" begin="6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur="11s" begin="6s" repeatCount="indefinite"/></circle>
+</g>
+</svg>

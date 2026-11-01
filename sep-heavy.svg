@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 56" role="img" aria-label="Strung ribbon with hanging blank mask">
+<path d="M0,10 Q600,30 1200,10" stroke="#b02028" stroke-width="5" fill="none"/>
+<g transform="translate(600,24)"><ellipse cx="0" cy="14" rx="17" ry="21" fill="#eee9dc"/><ellipse cx="-7" cy="10" rx="4" ry="2.6" fill="#0a0a0a"/><ellipse cx="7" cy="10" rx="4" ry="2.6" fill="#0a0a0a"/></g>
+</svg>

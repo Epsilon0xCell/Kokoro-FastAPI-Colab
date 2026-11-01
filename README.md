@@ -1,8 +1,16 @@
-![Banner](banner.png)
+![Intro: mask workshop at dawn, rows of blank masks under canal light, one finished gilded mask on a stand](intro-banner.png)
+
 
 # Kokoro-FastAPI-Colab
 
+![Banner](banner.png)
+
+![Scene](scene.svg)
+
 A ready-to-run Google Colab notebook for deploying Kokoro text-to-speech API with GPU acceleration and public access via an ngrok tunnel.
+
+
+![Separator](sep-heavy.svg)
 
 ## Features
 
@@ -19,6 +27,8 @@ Click the button below to open this project in Google Colab with T4 GPU accelera
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Epsilon0xCell/Kokoro-FastAPI-Colab/blob/main/launch_kokoro.ipynb)
 
 ## Usage
+
+> **Workshop note pinned to the peg board.** Tunnel addresses change at every restart, and a restarted session mints a new one. Copy the address whole, every character.
 
 1. Click the "Open In Colab" button above
 2. In Colab, go to Runtime → Change runtime type and select "T4 GPU"
